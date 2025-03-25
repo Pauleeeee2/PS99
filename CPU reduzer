@@ -1,0 +1,25 @@
+local Players, Workspace, ReplicatedStorage, Lighting, TweenService = game:GetService("Players"), game:GetService("Workspace"), game:GetService("ReplicatedStorage"), game:GetService("Lighting"), game:GetService("TweenService")
+local Player, Character, HRP = Players.LocalPlayer, Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait(), nil
+HRP = Character:WaitForChild("HumanoidRootPart")
+
+-- Terrain & Lighting Optimierung
+local Terrain = Workspace:WaitForChild("Terrain")
+Terrain.WaterReflectance, Terrain.WaterTransparency, Terrain.WaterWaveSize, Terrain.WaterWaveSpeed = 0, 1, 0, 0
+Lighting.Brightness, Lighting.GlobalShadows, Lighting.FogEnd, Lighting.FogStart = 0, false, 9e100, 0
+pcall(sethiddenproperty, Lighting, "Technology", 2)
+pcall(sethiddenproperty, Terrain, "Decoration", false)
+Lighting:ClearAllChildren()
+
+local function clear(v)
+    if v:IsA("BasePart") or v:IsA("MeshPart") then v.Material, v.Reflectance = "Plastic", 0 end
+    if v:IsA("Decal") or v:IsA("Texture") then v.Transparency = 1 end
+    if v:IsA("ParticleEmitter") or v:IsA("Trail") then v.Lifetime = NumberRange.new(0) end
+    if v:IsA("Explosion") then v.BlastPressure, v.BlastRadius = 1, 1 end
+    if v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then v.Enabled = false end
+    if v:IsA("MeshPart") then v.MeshId, v.TextureID = "rbxassetid://0", "" end
+    if v:IsA("SpecialMesh") then v.TextureId = "0" end
+    if v:IsA("Folder") and v.Name == "Foilage" or v.Name:match("Tree|Water|Bush|grass") then v:Destroy() end
+end
+
+for _, v in pairs(Workspace:GetDescendants()) do clear(v) end
+Workspace.DescendantAdded:Connect(clear)
